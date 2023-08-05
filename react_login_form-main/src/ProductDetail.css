@@ -1,0 +1,25 @@
+.product-detail-container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .product-detail-container h1 {
+    text-align: center;
+  }
+  
+  .product-detail-container ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .product-detail-container li {
+    margin-bottom: 10px;
+  }
+  
+  .product-detail-container li strong {
+    display: inline-block;
+    width: 150px;
+  }
