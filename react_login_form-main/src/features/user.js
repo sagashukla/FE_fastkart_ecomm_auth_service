@@ -4,7 +4,8 @@ export const userSlice = createSlice({
     name: "user",
     initialState: {
         value: {
-            token: ""
+            token: "",
+            roleType: "",
         }
     },
     reducers:{

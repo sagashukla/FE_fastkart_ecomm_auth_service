@@ -45,13 +45,20 @@ const Login = () => {
             );
             
             const accessToken = response?.data.token;
+            const roleType = response?.data.roleType;
             dispatch(login({
-                token: accessToken 
+                token: accessToken,
+                roleType: roleType 
             }))
             setUser('');
             setPwd('');
             setSuccess(true);
-            navigate("/seller-home")
+            if(roleType == "SELLER"){
+                navigate("/seller-home")
+            }
+            else{
+                navigate("/buyer-home")
+            }
         } catch (err) {
             if (!err?.response) {
                 setErrMsg('No Server Response');

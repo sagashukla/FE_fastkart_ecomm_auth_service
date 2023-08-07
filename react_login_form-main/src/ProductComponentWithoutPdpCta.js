@@ -1,13 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const ProductComponent2 = (props) => {
+const ProductComponentWithoutPdpCta = (props) => {
   const navigate = useNavigate();
   const { id, name, description, minBidAmount, category, sellerId } = props;
 
-  const handlepdpbutton = ()=>{
-    navigate("/product-pdp");
-  }
+
   return (
     <div className="product-detail-container">
       <h1>Product Detail - {name}</h1>
@@ -35,4 +33,4 @@ const ProductComponent2 = (props) => {
   );
 };
 
-export default ProductComponent2;
+export default ProductComponentWithoutPdpCta;

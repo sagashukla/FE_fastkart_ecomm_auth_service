@@ -1,17 +1,16 @@
 import { useEffect } from "react";
-import ProductComponent2 from "./ProductComponent2"
+import ProductComponent from "./ProductComponent"
 import axios from './api/axios';
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import BidComponent from "./BidComponent"
 
-const GET_PRODUCTS = '/api/v1/seller/product';
+const GET_PRODUCTS = '/api/v1/seller/products';
 
-const ProductDetailPage = () => {
+const BuyerHome = () => {
 
     const navigate = useNavigate();
     const user = useSelector((state) => state.user.value);
-    const productInfo = 
+    const productList = [
         {
           id: 1,
           name: 'Product 1',
@@ -19,26 +18,19 @@ const ProductDetailPage = () => {
           minBidAmount: 100.0,
           category: 'Category A',
           sellerId: 1001,
-        } // Add more productInfo objects as needed
-      ;
-    const bidList = [
-      {
-        bidId: 1,
-        bidAmount: "10$"
-      },
-      {
-        bidId: 2,
-        bidAmount: "20$"
-      },
-      {
-        bidId: 3,
-        bidAmount: "30$"
-      }
-    ]
+        },
+        {
+          id: 2,
+          name: 'Product 2',
+          description: 'Description of Product 2',
+          minBidAmount: 200.0,
+          category: 'Category B',
+          sellerId: 1002,
+        },
+        // Add more productInfo objects as needed
+      ];
 
     useEffect(() => {
-        // const authProvider = AuthProvider();
-        console.log("here my token")
         console.log(user.token)
         // let token = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiU0VMTEVSIiwic3ViIjoiam95QGdtYWlsLmNvbSIsImlhdCI6MTY5MTIzMTk3OSwiZXhwIjoxNjkxMjMzNDE5fQ.y3SstAQz0BclzBYMmpj1cUxhiwUt8k62vhGBnLeQ2tk";
         // const config = {
@@ -65,8 +57,10 @@ const ProductDetailPage = () => {
     return (
       
         <div>
-          <h1>Product detail page</h1>
-          <ProductComponent2
+          <h1>All Products by all selleff</h1>
+          {productList.length > 0 ? (
+            productList.map((productInfo) => (
+              <ProductComponent
                 key={productInfo.id}
                 id={productInfo.id}
                 name={productInfo.name}
@@ -74,12 +68,6 @@ const ProductDetailPage = () => {
                 minBidAmount={productInfo.minBidAmount}
                 category={productInfo.category}
                 sellerId={productInfo.sellerId}
-              />
-          {bidList.length > 0 ? (
-            bidList.map((bidInfo) => (
-              <BidComponent
-                id={bidInfo.bidId}
-                amount={bidInfo.bidAmount}
               />
             ))
           ) : (
@@ -89,4 +77,4 @@ const ProductDetailPage = () => {
       );
 }
 
-export default ProductDetailPage;
+export default BuyerHome;

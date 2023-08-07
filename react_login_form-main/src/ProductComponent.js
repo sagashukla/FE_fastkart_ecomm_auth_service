@@ -1,12 +1,19 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from "react-redux";
 
 const ProductComponent = (props) => {
   const navigate = useNavigate();
   const { id, name, description, minBidAmount, category, sellerId } = props;
+  const user = useSelector((state) => state.user.value);
 
   const handlepdpbutton = ()=>{
-    navigate("/product-pdp");
+    if(user.roleType == "SELLER"){
+      navigate("/product-pdp-seller");
+    }
+    else{
+      navigate("/product-pdp-buyer");
+    }
   }
   return (
     <div className="product-detail-container">
