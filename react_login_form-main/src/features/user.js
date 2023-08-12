@@ -6,6 +6,8 @@ export const userSlice = createSlice({
         value: {
             token: "",
             roleType: "",
+            id: 0,
+            productId: 0,
         }
     },
     reducers:{

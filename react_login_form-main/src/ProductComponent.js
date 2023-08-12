@@ -1,14 +1,30 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import {login } from "./features/user";
 
 const ProductComponent = (props) => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { id, name, description, minBidAmount, category, sellerId } = props;
+  const { id, name, categoryName, timestamp, maxBidAmount } = props;
   const user = useSelector((state) => state.user.value);
 
+  const date = new Date(timestamp);
+  const formattedDate = date.toLocaleString("en-US", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric"
+  });
+
   const handlepdpbutton = ()=>{
-    if(user.roleType == "SELLER"){
+    dispatch(login({
+      productId: id 
+    }))
+    localStorage.setItem('productId', id);
+    if(localStorage.getItem('role-type') == "SELLER"){
       navigate("/product-pdp-seller");
     }
     else{
@@ -20,22 +36,16 @@ const ProductComponent = (props) => {
       <h1>Product Detail - {name}</h1>
       <ul>
         <li>
-          <strong>Product ID:</strong> {id}
-        </li>
-        <li>
           <strong>Name:</strong> {name}
         </li>
         <li>
-          <strong>Description:</strong> {description}
+          <strong>Category:</strong> {categoryName}
         </li>
         <li>
-          <strong>Minimum Bid Amount:</strong> ${minBidAmount}
+          <strong>Max bid amount: </strong> ${maxBidAmount}
         </li>
         <li>
-          <strong>Category:</strong> {category}
-        </li>
-        <li>
-          <strong>Seller ID:</strong> {sellerId}
+          <strong>Created date:</strong> {formattedDate}
         </li>
         <button onClick={handlepdpbutton} >PDP</button>
       </ul>

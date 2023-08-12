@@ -3,8 +3,7 @@ import AuthContext from "./context/AuthProvider";
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import {login } from "./features/user";
-
-import axios from './api/axios';
+import { axiosInstances } from './api/axios';
 const LOGIN_URL = '/api/v1/auth';
 
 const Login = () => {
@@ -12,7 +11,6 @@ const Login = () => {
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
-    const { setAuth } = useContext(AuthContext);
     const userRef = useRef();
     const errRef = useRef();
 
@@ -37,7 +35,7 @@ const Login = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post(LOGIN_URL,
+            const response = await axiosInstances.authaxios.post(LOGIN_URL,
                 JSON.stringify({ email: user, password: pwd }),
                 {
                     headers: { 'Content-Type': 'application/json' },
@@ -46,9 +44,14 @@ const Login = () => {
             
             const accessToken = response?.data.token;
             const roleType = response?.data.roleType;
+            const id = response?.data.id;
+            localStorage.setItem('token', accessToken)
+            localStorage.setItem('user-id', id)
+            localStorage.setItem('role-type', roleType)
             dispatch(login({
                 token: accessToken,
-                roleType: roleType 
+                roleType: roleType,
+                id: id 
             }))
             setUser('');
             setPwd('');

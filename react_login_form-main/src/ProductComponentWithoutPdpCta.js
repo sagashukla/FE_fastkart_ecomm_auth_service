@@ -3,7 +3,18 @@ import { useNavigate } from 'react-router-dom';
 
 const ProductComponentWithoutPdpCta = (props) => {
   const navigate = useNavigate();
-  const { id, name, description, minBidAmount, category, sellerId } = props;
+  const { userType, id, name, description, minBidAmount, category, sellerName, minBid, maxBid } = props;
+
+  const handleClick = () => {
+    let roleType = localStorage.getItem('role-type');
+
+    if(roleType == "SELLER"){
+      navigate("/seller-home")
+    }
+    else{
+      navigate("/buyer-home")
+    }
+  }
 
 
   return (
@@ -20,14 +31,24 @@ const ProductComponentWithoutPdpCta = (props) => {
           <strong>Description:</strong> {description}
         </li>
         <li>
-          <strong>Minimum Bid Amount:</strong> ${minBidAmount}
+          <strong>Minimum Bid Amount set by seller:</strong> ${minBidAmount}
         </li>
         <li>
           <strong>Category:</strong> {category}
         </li>
+        {userType == "SELLER" ? (        
         <li>
-          <strong>Seller ID:</strong> {sellerId}
+          <strong>Min bid amount:</strong> {minBid}
+        </li>) : (<></>)}
+        {userType == "SELLER" ? (        
+        <li>
+          <strong>Max bid amount:</strong> {maxBid}
+        </li>) : (<></>)}
+        <li>
+           <strong>Seller name:</strong> {sellerName}
         </li>
+
+        <button onClick={handleClick}>back</button>
       </ul>
     </div>
   );

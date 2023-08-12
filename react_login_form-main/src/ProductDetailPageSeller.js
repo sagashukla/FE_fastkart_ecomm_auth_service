@@ -1,9 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ProductComponentWithoutPdpCta from "./ProductComponentWithoutPdpCta"
-import axios from './api/axios';
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import BidComponent from "./BidComponent"
+import {axiosInstances} from './api/axios';
 
 const GET_PRODUCTS = '/api/v1/seller/product';
 
@@ -11,80 +10,81 @@ const ProductDetailPageSeller = () => {
 
     const navigate = useNavigate();
     const user = useSelector((state) => state.user.value);
-    const productInfo = 
-        {
-          id: 1,
-          name: 'Product 1',
-          description: 'Description of Product 1',
-          minBidAmount: 100.0,
-          category: 'Category A',
-          sellerId: 1001,
-        } // Add more productInfo objects as needed
-      ;
-    const bidList = [
-      {
-        bidId: 1,
-        bidAmount: "10$"
-      },
-      {
-        bidId: 2,
-        bidAmount: "20$"
-      },
-      {
-        bidId: 3,
-        bidAmount: "30$"
-      }
-    ]
+    const [products, setProducts] = useState([]);
+    const [minBidAmount, setMinBidAmount] = useState(0);
+    const [maxBidAmount, setMaxBidAmount] = useState(0);
+    const [allBidAmounts, setAllBidAmounts] = useState([]);
 
     useEffect(() => {
-        // const authProvider = AuthProvider();
-        console.log("here my token")
-        console.log(user.token)
-        // let token = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiU0VMTEVSIiwic3ViIjoiam95QGdtYWlsLmNvbSIsImlhdCI6MTY5MTIzMTk3OSwiZXhwIjoxNjkxMjMzNDE5fQ.y3SstAQz0BclzBYMmpj1cUxhiwUt8k62vhGBnLeQ2tk";
-        // const config = {
-        //     headers: { Authorization: `Bearer ${token}` }
-        // };
-        // console.log(config);
-        // // Function to fetch the product data from the API
-        // const fetchProductInfo = async () => {
-        //     try {
-        //         const response = await axios.get(GET_PRODUCTS, {
-        //             params: { id: 1 },
-        //             config
-        //           });
-        //         // TODO: remove console.logs before deployment
-        //         console.log(JSON.stringify(response?.data));
-        //         //console.log(JSON.stringify(response))
-        //     } catch (err) {
-        //     }
-        // };
+        let token = localStorage.getItem('token')
+        let productId = localStorage.getItem('productId');
+        const fetchProductInfo = async () => {
+            try {
+                const response = await axiosInstances.selleraxios.get(GET_PRODUCTS, {
+                    params: { id: productId },
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    }
+                  });
+                let response1 = response?.data;
+                setProducts(response1)
+                setAllBidAmounts(products.map(bid => bid.bidAmount))
+            } catch (err) {
+            }
+        };
     
-        //fetchProductInfo();
+        fetchProductInfo();
     }, []);
+
+    useEffect(() => {
+      console.log(products)
+      let allBidAmounts = products.map(bid => bid.bidAmount);
+
+      let minBid = Math.min(...allBidAmounts);
+      let maxBid = Math.max(...allBidAmounts);
+
+      setMinBidAmount(minBid)
+      setMaxBidAmount(maxBid);
+    }, [products, allBidAmounts])
 
     return (
       
         <div>
           <h1>Product detail page</h1>
-          <ProductComponentWithoutPdpCta
-                key={productInfo.id}
-                id={productInfo.id}
-                name={productInfo.name}
-                description={productInfo.description}
-                minBidAmount={productInfo.minBidAmount}
-                category={productInfo.category}
-                sellerId={productInfo.sellerId}
-              />
-          {bidList.length > 0 ? (
-            bidList.map((bidInfo) => (
-              <BidComponent
-                id={bidInfo.bidId}
-                amount={bidInfo.bidAmount}
-              />
+          {
+            products.length > 0 ? (
+<ProductComponentWithoutPdpCta
+                      userType = "SELLER"
+                      key={products[0].id}
+                      id={products[0].id}
+                      name={products[0].name}
+                      description={products[0].description}
+                      minBidAmount={products[0].mimimumBidAmount}
+                      category={products[0].categoryName}
+                      minBid={minBidAmount}
+                      maxBid={maxBidAmount}
+                      bidderName={products[0].bidderName}
+                      sellerName={products[0].sellerName}
+                    />
+            ):
+            <p>No data found</p>
+          }
+          
+          <p>Bidders list:-</p>
+          {products.length > 0 ? (
+            products.map((bidInfo) => (
+              <div className="product-detail-container">
+              <ul>
+                <li>
+                  <strong>Bidder name: {bidInfo.bidderName}; Bid amount: {bidInfo.bidAmount}</strong> 
+                </li>
+              </ul>
+            </div>
             ))
           ) : (
-            <p>Loading...</p>
+            <p>No bids.</p>
           )}
+
         </div>
       );
 }

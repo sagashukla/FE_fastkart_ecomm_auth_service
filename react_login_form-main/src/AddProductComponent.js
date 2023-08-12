@@ -1,17 +1,19 @@
 import { useRef, useState, useEffect } from "react";
 import { faCheck, faTimes, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from './api/axios';
+import selleraxios from './api/axios';
+import { axiosInstances } from './api/axios';
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import DropdownComponent from './DropdownComponent';
 
 const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
 const ADD_PRODUCT_URL = '/api/v1/seller/product';
+const GET_CATEGORIES = '/api/v1/category'
 
 const AddProduct = () => {
     const navigate = useNavigate();
-    const userRef = useRef();
-    const errRef = useRef();
 
     const [productName, setProductName] = useState('');
 
@@ -19,41 +21,79 @@ const AddProduct = () => {
 
     const [bidAmount, setBidAmount] = useState('');
 
-    const [category, setCategory] = useState('');
 
     const [sellerId, setSellerId] = useState('');
 
-    const [errMsg, setErrMsg] = useState('');
-    const [success, setSuccess] = useState(false);
+    const cat = [
+        {
+            name: "Automobile",
+            id: 2
+        },
+        {
+            name: "Electronics",
+            id: 2
+        },
+        {
+            name: "Clothes",
+            id: 3
+        }
+    ]
 
-    useEffect(() => {
-        userRef.current.focus();
-    }, [])
+    //const [categories, setCategories] = useState(cat);
+
+    // useEffect(() => {
+    //     let token = localStorage.getItem('token')
+    //     const fetchCategories = async () => {
+    //         try {
+    //             const response = await axiosInstances.selleraxios.get(GET_CATEGORIES, {
+    //                 headers: {
+    //                   Authorization: `Bearer ${token}`,
+    //                 }
+    //               });
+                
+    //             console.log("here1")
+    //             console.log(JSON.stringify(response?.data))
+    //             console.log("here2")
+    //         } catch (err) {
+    //         }
+    //     };
+    
+    //     fetchCategories();
+    // }, [])
 
     const handleSubmit = async (e) => {
+        let token = localStorage.getItem('token')
+        setSellerId(localStorage.getItem('user-id'))
+        let category = localStorage.getItem('selected-category')
+        let categoryId;
+
+        console.log("selected category")
+        console.log(category)
+        if(category == "Automobile"){
+            categoryId = 2;
+        }
+        else if(category == "Electronics"){
+            categoryId = 1;
+        }
+        else{
+            categoryId = 3;
+        }
         e.preventDefault();
         try {
-            const response = await axios.post(ADD_PRODUCT_URL,
-                JSON.stringify({ name: productName, description: description, minBidAmount: bidAmount, category: category, sellerId: sellerId }),
+            const response = await axiosInstances.selleraxios.post(ADD_PRODUCT_URL,
+                JSON.stringify({ name: productName, description: description, minBidAmount: bidAmount, sellerId: sellerId, categoryId: categoryId }),
                 {
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json' 
+                      }
                 }
             );
             // TODO: remove console.logs before deployment
             console.log(JSON.stringify(response?.data));
-            //console.log(JSON.stringify(response))
-            setSuccess(true);
-            //clear state and controlled inputs
-            navigate("/login");
+            navigate("/seller-home");
         } catch (err) {
-            if (!err?.response) {
-                setErrMsg('No Server Response');
-            } else if (err.response?.status === 409) {
-                setErrMsg('Username Taken');
-            } else {
-                setErrMsg('Registration Failed')
-            }
-            errRef.current.focus();
+
         }
     }
 
@@ -63,16 +103,8 @@ const AddProduct = () => {
 
     return (
         <>
-            {success ? (
+            {(
                 <section>
-                    <h1>Success!</h1>
-                    <p>
-                        <a href="#">Sign In</a>
-                    </p>
-                </section>
-            ) : (
-                <section>
-                    <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
                     <h1>Add Product</h1>
                     <form onSubmit={handleSubmit}>
                         <label htmlFor="name">
@@ -81,7 +113,6 @@ const AddProduct = () => {
                         <input
                             type="text"
                             id="name"
-                            ref={userRef}
                             autoComplete="off"
                             onChange={(e) => setProductName(e.target.value)}
                             value={productName}
@@ -93,7 +124,6 @@ const AddProduct = () => {
                         <input
                             type="text"
                             id="description"
-                            ref={userRef}
                             autoComplete="off"
                             onChange={(e) => setDescription(e.target.value)}
                             value={description}
@@ -105,36 +135,13 @@ const AddProduct = () => {
                         <input
                             type="text"
                             id="bidamount"
-                            ref={userRef}
+
                             autoComplete="off"
                             onChange={(e) => setBidAmount(e.target.value)}
                             value={bidAmount}
                             required
                         />
-
-                        <label htmlFor="category">
-                            Category:
-                        </label>
-                        <input
-                            type="text"
-                            id="category"
-                            onChange={(e) => setCategory(e.target.value)}
-                            value={category}
-                            required
-                        />
-
-                       <label htmlFor="selledid">
-                            Seller id
-                        </label>
-                        <input
-                            type="text"
-                            id="sellerid"
-                            ref={userRef}
-                            autoComplete="off"
-                            onChange={(e) => setSellerId(e.target.value)}
-                            value={sellerId}
-                            required
-                        />
+                        <DropdownComponent propscategories={cat}/>
                         <button>Add product</button>
                     </form>
                     <button onClick={handleLoginClick} >Go back</button>

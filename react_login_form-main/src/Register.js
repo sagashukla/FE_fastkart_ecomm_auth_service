@@ -1,8 +1,9 @@
 import { useRef, useState, useEffect } from "react";
 import { faCheck, faTimes, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from './api/axios';
+import {axiosInstances} from './api/axios';
 import { useNavigate } from "react-router-dom";
+import DropdownComponent from "./DropdownComponent";
 
 const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
@@ -44,6 +45,17 @@ const Register = () => {
     const [errMsg, setErrMsg] = useState('');
     const [success, setSuccess] = useState(false);
 
+    const roleType = [
+        {
+            name: "SELLER",
+            id: 1
+        },
+        {
+            name: "BUYER",
+            id: 2
+        }
+    ]
+
     useEffect(() => {
         userRef.current.focus();
     }, [])
@@ -64,9 +76,16 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if(localStorage.getItem('selected-type') == "SELLER"){
+            setRoleType(1)
+        }
+        else{
+            setRoleType(2)
+        }
+
         try {
-            const response = await axios.post(REGISTER_URL,
-                JSON.stringify({ firstName: firstName, lastName: lastName, email: email, password: pwd, roleType: role }),
+            const response = await axiosInstances.authaxios.post(REGISTER_URL,
+                JSON.stringify({ firstName: firstName, lastName: lastName, email: email, password: pwd, roleId: role }),
                 {
                     headers: { 'Content-Type': 'application/json' }
                 }
@@ -153,23 +172,13 @@ const Register = () => {
                         <input
                             type="password"
                             id="password"
+                            ref={userRef}
+                            autoComplete="off"
                             onChange={(e) => setPwd(e.target.value)}
                             value={pwd}
                             required
                         />
-
-                       <label htmlFor="username">
-                            RoleType: SELLER or BUYER
-                        </label>
-                        <input
-                            type="text"
-                            id="role"
-                            ref={userRef}
-                            autoComplete="off"
-                            onChange={(e) => setRoleType(e.target.value)}
-                            value={role}
-                            required
-                        />
+                        <DropdownComponent propscategories={roleType}/>
                         <button>Sign Up</button>
                     </form>
                     <p>
